@@ -1,0 +1,143 @@
+import { faker } from '@faker-js/faker'
+
+describe('Teste Recurso Auth', function () {
+  var baseUrl;
+  var randomPassword;
+
+  beforeEach(function () {
+    baseUrl = 'https://raromdb-3c39614e42d4.herokuapp.com'
+  })
+
+
+  it('Login - Sucesso', function () {
+    randomPassword = faker.internet.password({ length: 6 });
+
+    const fakeUserData = {
+      name: faker.person.fullName(),
+      email: faker.internet.email(),
+      password: randomPassword
+    };
+
+    cy.request({
+      method: 'POST',
+      url: baseUrl + '/api/users',
+      body: fakeUserData
+    })
+      .then((response) => {
+        expect(response.status).to.equal(201);
+      })
+
+    cy.request({
+      method: 'POST',
+      url: baseUrl + '/api/auth/login',
+      body: {
+        email: fakeUserData.email,
+        password: fakeUserData.password
+      }
+    })
+      .then((response) => {
+        expect(response.status).to.equal(200);
+        expect(response.body).to.have.property('accessToken');
+        const accessToken = response.body.accessToken;
+        cy.log(accessToken);
+      })
+  })
+
+
+  it('Login - Email inválido', function () {
+    randomPassword = faker.internet.password({ length: 6 });
+
+    const fakeUserData = {
+      name: faker.person.fullName(),
+      email: faker.internet.email(),
+      password: randomPassword
+    };
+
+    cy.request({
+      method: 'POST',
+      url: baseUrl + '/api/users',
+      body: fakeUserData
+    })
+      .then((response) => {
+        expect(response.status).to.equal(201);
+      })
+
+    cy.request({
+      method: 'POST',
+      url: baseUrl + '/api/auth/login',
+      body: {
+        email: 'invalidoteste.com.br',
+        password: fakeUserData.password
+      },
+      failOnStatusCode: false
+    })
+      .then((response) => {
+        expect(response.status).to.equal(400);
+        expect(response.body).to.have.property('message');
+        const message = response.body.message
+        cy.log(message);
+      })
+  })
+
+
+  it('Login - Senha inválida', function () {
+    randomPassword = faker.internet.password({ length: 6 });
+
+    const fakeUserData = {
+      name: faker.person.fullName(),
+      email: faker.internet.email(),
+      password: randomPassword
+    };
+
+    cy.request({
+      method: 'POST',
+      url: baseUrl + '/api/users',
+      body: fakeUserData
+    })
+      .then((response) => {
+        expect(response.status).to.equal(201);
+      })
+
+    cy.request({
+      method: 'POST',
+      url: baseUrl + '/api/auth/login',
+      body: {
+        email: fakeUserData.email,
+        password: 'senhaerrada'
+      },
+      failOnStatusCode: false
+    })
+      .then((response) => {
+        expect(response.status).to.equal(401);
+        expect(response.body).to.have.property('message');
+        const message = response.body.message
+        cy.log(message);
+      })
+  })
+
+
+  it('Login - Usuário inexistente', function () {
+    randomPassword = faker.internet.password({ length: 6 });
+
+    const fakeUserData = {
+      email: faker.internet.email(),
+      password: randomPassword
+    };
+
+    cy.request({
+      method: 'POST',
+      url: baseUrl + '/api/auth/login',
+      body: {
+        email: fakeUserData.email,
+        password: fakeUserData.password
+      },
+      failOnStatusCode: false
+    })
+      .then((response) => {
+        expect(response.status).to.equal(401);
+        expect(response.body).to.have.property('message');
+        const message = response.body.message
+        cy.log(message);
+      })
+  })
+})
