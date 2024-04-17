@@ -15,7 +15,7 @@ describe('Testes Recurso User', function () {
 
     cy.request({
       method: 'POST',
-      url: baseUrl + '/api/users',
+      url: '/api/users',
       body: fakeUserData
     })
       .then((response) => {
@@ -38,7 +38,7 @@ describe('Testes Recurso User', function () {
 
     cy.request({
       method: 'POST',
-      url: baseUrl + '/api/users',
+      url: '/api/users',
       body: fakeUserData,
       failOnStatusCode: false
     })
@@ -60,7 +60,7 @@ describe('Testes Recurso User', function () {
 
     cy.request({
       method: 'POST',
-      url: baseUrl + '/api/users',
+      url: '/api/users',
       body: fakeUserData,
       failOnStatusCode: false
     })
@@ -83,7 +83,7 @@ describe('Testes Recurso User', function () {
 
     cy.request({
       method: 'POST',
-      url: baseUrl + '/api/users',
+      url: '/api/users',
       body: fakeUserData,
       failOnStatusCode: false
     })
@@ -105,7 +105,7 @@ describe('Testes Recurso User', function () {
 
     cy.request({
       method: 'POST',
-      url: baseUrl + '/api/users',
+      url: '/api/users',
       body: fakeUserData
     })
       .then((response) => {
@@ -113,7 +113,7 @@ describe('Testes Recurso User', function () {
 
         cy.request({
           method: 'POST',
-          url: baseUrl + '/api/auth/login',
+          url: '/api/auth/login',
           body: {
             email: fakeUserData.email,
             password: fakeUserData.password
@@ -126,7 +126,7 @@ describe('Testes Recurso User', function () {
             cy.log(accessToken);
             cy.request({
               method: 'PATCH',
-              url: baseUrl + '/api/users/admin',
+              url: '/api/users/admin',
               headers: {
                 'Authorization': 'Bearer ' + accessToken
               },
@@ -136,7 +136,7 @@ describe('Testes Recurso User', function () {
               })
             cy.request({
               method: 'GET',
-              url: baseUrl + '/api/users',
+              url: '/api/users',
               headers: {
                 'Authorization': 'Bearer ' + accessToken
               }
@@ -168,7 +168,7 @@ describe('Testes Recurso User', function () {
 
     cy.request({
       method: 'POST',
-      url: baseUrl + '/api/users',
+      url: '/api/users',
       body: fakeUserData
     })
       .then((response) => {
@@ -178,7 +178,7 @@ describe('Testes Recurso User', function () {
 
         cy.request({
           method: 'POST',
-          url: baseUrl + '/api/auth/login',
+          url: '/api/auth/login',
           body: {
             email: fakeUserData.email,
             password: fakeUserData.password
@@ -192,7 +192,7 @@ describe('Testes Recurso User', function () {
 
             cy.request({
               method: 'PATCH',
-              url: baseUrl + '/api/users/admin',
+              url: '/api/users/admin',
               headers: {
                 'Authorization': 'Bearer ' + accessToken
               }
@@ -202,7 +202,7 @@ describe('Testes Recurso User', function () {
 
                 cy.request({
                   method: 'GET',
-                  url: baseUrl + '/api/users/' + userId,
+                  url: '/api/users/' + userId,
                   headers: {
                     'Authorization': 'Bearer ' + accessToken
                   }

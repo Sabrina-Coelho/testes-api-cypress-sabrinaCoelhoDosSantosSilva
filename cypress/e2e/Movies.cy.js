@@ -8,7 +8,7 @@ describe('Testes Recurso Movies', function () {
   it('Listar Filmes', function () {
     cy.request({
       method: 'GET',
-      url: baseUrl + '/api/movies'
+      url: '/api/movies'
     })
       .then((response) => {
         expect(response.status).to.equal(200);
@@ -38,7 +38,7 @@ describe('Testes Recurso Movies', function () {
 
     cy.request({
       method: 'POST',
-      url: baseUrl + '/api/users',
+      url: '/api/users',
       body: fakeUserData
     })
       .then((response) => {
@@ -46,7 +46,7 @@ describe('Testes Recurso Movies', function () {
 
         cy.request({
           method: 'POST',
-          url: baseUrl + '/api/auth/login',
+          url: '/api/auth/login',
           body: {
             email: fakeUserData.email,
             password: fakeUserData.password
@@ -59,7 +59,7 @@ describe('Testes Recurso Movies', function () {
             cy.log(accessToken);
             cy.request({
               method: 'PATCH',
-              url: baseUrl + '/api/users/admin',
+              url: '/api/users/admin',
               headers: {
                 'Authorization': 'Bearer ' + accessToken
               },
@@ -69,7 +69,7 @@ describe('Testes Recurso Movies', function () {
               })
             cy.request({
               method: 'POST',
-              url: baseUrl + '/api/movies',
+              url: '/api/movies',
               body: {
                 title: 'Barbie: A Princesa e a Plebéia',
                 genre: 'Animação',
@@ -89,7 +89,7 @@ describe('Testes Recurso Movies', function () {
       })
     cy.request({
       method: 'GET',
-      url: baseUrl + '/api/movies/search',
+      url: '/api/movies/search',
       qs: {
         title: 'Barbie: A Princesa e a Plebéia'
       }
@@ -122,7 +122,7 @@ describe('Testes Recurso Movies', function () {
 
     cy.request({
       method: 'POST',
-      url: baseUrl + '/api/users',
+      url: '/api/users',
       body: fakeUserData
     })
       .then((response) => {
@@ -130,7 +130,7 @@ describe('Testes Recurso Movies', function () {
 
         cy.request({
           method: 'POST',
-          url: baseUrl + '/api/auth/login',
+          url: '/api/auth/login',
           body: {
             email: fakeUserData.email,
             password: fakeUserData.password
@@ -143,7 +143,7 @@ describe('Testes Recurso Movies', function () {
             cy.log(accessToken);
             cy.request({
               method: 'PATCH',
-              url: baseUrl + '/api/users/admin',
+              url: '/api/users/admin',
               headers: {
                 'Authorization': 'Bearer ' + accessToken
               },
@@ -153,7 +153,7 @@ describe('Testes Recurso Movies', function () {
 
                 cy.request({
                   method: 'POST',
-                  url: baseUrl + '/api/movies',
+                  url: '/api/movies',
                   body: {
                     title: 'Barbie: A Princesa e a Plebéia',
                     genre: 'Animação',
@@ -170,7 +170,7 @@ describe('Testes Recurso Movies', function () {
 
                     cy.request({
                       method: 'GET',
-                      url: baseUrl + '/api/movies/search',
+                      url: '/api/movies/search',
                       qs: {
                         title: 'Barbie: A Princesa e a Plebéia'
                       }
@@ -182,7 +182,7 @@ describe('Testes Recurso Movies', function () {
 
                           cy.request({
                             method: 'GET',
-                            url: baseUrl + '/api/movies/' + movieId
+                            url: '/api/movies/' + movieId
                           })
                             .then((response) => {
                               expect(response.status).to.equal(200);

@@ -15,7 +15,7 @@ describe('Teste Recurso Auth', function () {
 
     cy.request({
       method: 'POST',
-      url: baseUrl + '/api/users',
+      url: '/api/users',
       body: fakeUserData
     })
       .then((response) => {
@@ -24,7 +24,7 @@ describe('Teste Recurso Auth', function () {
 
     cy.request({
       method: 'POST',
-      url: baseUrl + '/api/auth/login',
+      url: '/api/auth/login',
       body: {
         email: fakeUserData.email,
         password: fakeUserData.password
@@ -50,7 +50,7 @@ describe('Teste Recurso Auth', function () {
 
     cy.request({
       method: 'POST',
-      url: baseUrl + '/api/users',
+      url: '/api/users',
       body: fakeUserData
     })
       .then((response) => {
@@ -59,7 +59,7 @@ describe('Teste Recurso Auth', function () {
 
     cy.request({
       method: 'POST',
-      url: baseUrl + '/api/auth/login',
+      url: '/api/auth/login',
       body: {
         email: 'invalidoteste.com.br',
         password: fakeUserData.password
@@ -86,7 +86,7 @@ describe('Teste Recurso Auth', function () {
 
     cy.request({
       method: 'POST',
-      url: baseUrl + '/api/users',
+      url: '/api/users',
       body: fakeUserData
     })
       .then((response) => {
@@ -95,7 +95,7 @@ describe('Teste Recurso Auth', function () {
 
     cy.request({
       method: 'POST',
-      url: baseUrl + '/api/auth/login',
+      url: '/api/auth/login',
       body: {
         email: fakeUserData.email,
         password: 'senhaerrada'
@@ -121,7 +121,7 @@ describe('Teste Recurso Auth', function () {
 
     cy.request({
       method: 'POST',
-      url: baseUrl + '/api/auth/login',
+      url: '/api/auth/login',
       body: {
         email: fakeUserData.email,
         password: fakeUserData.password
