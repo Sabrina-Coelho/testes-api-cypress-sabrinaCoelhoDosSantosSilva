@@ -1,12 +1,7 @@
 import { faker } from '@faker-js/faker'
 
 describe('Testes Recurso User', function () {
-  var baseUrl;
   var randomPassword;
-
-  beforeEach(function () {
-    baseUrl = 'https://raromdb-3c39614e42d4.herokuapp.com'
-  })
 
 
   it('Criar Usuário - Sucesso', function () {
