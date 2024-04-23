@@ -5,37 +5,9 @@ describe('Teste Recurso Auth', function () {
 
 
   it('Login - Sucesso', function () {
-    randomPassword = faker.internet.password({ length: 6 });
-
-    const fakeUserData = {
-      name: faker.person.fullName(),
-      email: faker.internet.email(),
-      password: randomPassword
-    };
-
-    cy.request({
-      method: 'POST',
-      url: '/api/users',
-      body: fakeUserData
+    cy.registerUser().then((fakeUserData) => {
+      cy.loginUser(fakeUserData);
     })
-      .then((response) => {
-        expect(response.status).to.equal(201);
-      })
-
-    cy.request({
-      method: 'POST',
-      url: '/api/auth/login',
-      body: {
-        email: fakeUserData.email,
-        password: fakeUserData.password
-      }
-    })
-      .then((response) => {
-        expect(response.status).to.equal(200);
-        expect(response.body).to.have.property('accessToken');
-        const accessToken = response.body.accessToken;
-        cy.log(accessToken);
-      })
   })
 
 

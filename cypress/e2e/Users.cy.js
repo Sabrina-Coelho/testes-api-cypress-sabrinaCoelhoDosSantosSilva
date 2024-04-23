@@ -3,29 +3,13 @@ import { faker } from '@faker-js/faker'
 describe('Testes Recurso User', function () {
   var randomPassword;
 
-
-  it('Criar Usuário - Sucesso', function () {
-    randomPassword = faker.internet.password({ length: 6 });
-
-    const fakeUserData = {
-      name: faker.person.fullName(),
-      email: faker.internet.email(),
-      password: randomPassword
-    };
-
-    cy.request({
-      method: 'POST',
-      url: '/api/users',
-      body: fakeUserData
-    })
-      .then((response) => {
-        expect(response.status).to.equal(201);
-        expect(response.body.name).to.be.a('string');
-        expect(response.body.email).to.be.a('string').and.include('@');
-        expect(fakeUserData.password).to.equal(randomPassword);
-      })
+  beforeEach(() => {
+    cy.fixture('movie.json').as('movie');
   })
 
+  it('Criar Usuário - Sucesso', function () {
+    cy.registerUser();
+  })
 
   it('Criar Usuário - Senha menor que 6', function () {
     randomPassword = faker.internet.password({ length: 5 });
@@ -48,7 +32,6 @@ describe('Testes Recurso User', function () {
       })
   })
 
-
   it('Criar Usuário - Senha maior que 12', function () {
     randomPassword = faker.internet.password({ length: 13 });
 
@@ -69,8 +52,6 @@ describe('Testes Recurso User', function () {
         expect(response.body.message).to.deep.include('password must be shorter than or equal to 12 characters');
       })
   })
-
-
 
   it('Criar Usuário - Email inválido', function () {
     randomPassword = faker.internet.password({ lenght: 6 });
@@ -93,131 +74,268 @@ describe('Testes Recurso User', function () {
       })
   })
 
+  it('Consultar Lista de Usuários - Sucesso', function () {
+    cy.registerUser().then((fakeUserData) => {
+      cy.loginUser(fakeUserData);
 
-  it('Consultar Lista de Usuários', function () {
-    randomPassword = faker.internet.password({ length: 6 });
-
-    const fakeUserData = {
-      name: faker.person.fullName(),
-      email: faker.internet.email(),
-      password: randomPassword
-    };
-
-    cy.request({
-      method: 'POST',
-      url: '/api/users',
-      body: fakeUserData
-    })
-      .then((response) => {
-        expect(response.status).to.equal(201);
-
+      cy.loginUser(fakeUserData).then((accessToken) => {
         cy.request({
-          method: 'POST',
-          url: '/api/auth/login',
-          body: {
-            email: fakeUserData.email,
-            password: fakeUserData.password
-          }
-        })
-          .then((response) => {
-            expect(response.status).to.equal(200);
-            expect(response.body).to.have.property('accessToken');
-            const accessToken = response.body.accessToken;
-            cy.log(accessToken);
-            cy.request({
-              method: 'PATCH',
-              url: '/api/users/admin',
-              headers: {
-                'Authorization': 'Bearer ' + accessToken
-              },
-            })
-              .then((response) => {
-                expect(response.status).to.equal(204);
-              })
-            cy.request({
-              method: 'GET',
-              url: '/api/users',
-              headers: {
-                'Authorization': 'Bearer ' + accessToken
-              }
-            })
-              .then((response) => {
-                expect(response.status).to.equal(200);
-                expect(response.body).to.be.an('array');
-                response.body.forEach(user => {
-                  expect(user).to.have.property('id');
-                  expect(user).to.have.property('name');
-                  expect(user).to.have.property('email');
-                  expect(user).to.have.property('type');
-                })
-                cy.log(response.body);
-              })
-          })
+          method: 'PATCH',
+          url: '/api/users/admin',
+          headers: {
+              'Authorization': 'Bearer ' + accessToken
+          },
       })
+          .then((response) => {
+              expect(response.status).to.equal(204);
+          })
+
+      cy.loginUser(fakeUserData).then((accessToken) => {
+      cy.request({
+        method: 'GET',
+        url: '/api/users',
+        headers: {
+          'Authorization': 'Bearer ' + accessToken
+        }
+      })
+        .then((response) => {
+          expect(response.status).to.equal(200);
+          expect(response.body).to.be.an('array');
+          response.body.forEach(user => {
+            expect(user).to.have.property('id');
+            expect(user).to.have.property('name');
+            expect(user).to.have.property('email');
+            expect(user).to.have.property('type');
+          })
+          cy.log(response.body);
+        })
+    })
+  })
+  })
   })
 
+it('Consultar Lista de Usuários - Não Autorizado', function () {
+  cy.request({
+    method: 'GET',
+    url: '/api/users',
+    failOnStatusCode: false
+  })
+    .then((response) => {
+      expect(response.status).to.equal(401);
+    })
 
   it('Encontrar Usuário', function () {
-    randomPassword = faker.internet.password({ length: 6 });
+    cy.registerUser().then((fakeUserData) => {
+      cy.loginUser(fakeUserData);
 
-    const fakeUserData = {
-      name: faker.person.fullName(),
-      email: faker.internet.email(),
-      password: randomPassword
-    };
+      cy.loginUser(fakeUserData).then((accessToken) => {
+        cy.request({
+          method: 'PATCH',
+          url: '/api/users/admin',
+          headers: {
+              'Authorization': 'Bearer ' + accessToken
+          },
+      })
+          .then((response) => {
+              expect(response.status).to.equal(204);
+          })
+    })
 
+      cy.loginUser(fakeUserData).then((accessToken) => {
+      cy.request({
+        method: 'GET',
+        url: '/api/users/' + userId,
+        headers: {
+          'Authorization': 'Bearer ' + accessToken
+        }
+      })
+    })
+      .then((response) => {
+        expect(response.status).to.equal(200);
+        expect(response.body).to.be.an('object');
+        expect(response.body).to.have.property('id');
+        expect(response.body).to.have.property('name');
+        expect(response.body).to.have.property('email');
+        expect(response.body).to.have.property('type');
+      })
+    cy.log(response.body);
+  })
+})
+})
+
+it('Criação de Review - Sucesso', function () {
+  cy.registerUser().then((fakeUserData) => {
+    cy.loginUser(fakeUserData);
+
+    cy.loginUser(fakeUserData).then((accessToken) => {
+      cy.request({
+        method: 'PATCH',
+        url: '/api/users/admin',
+        headers: {
+            'Authorization': 'Bearer ' + accessToken
+        },
+    })
+        .then((response) => {
+            expect(response.status).to.equal(204);
+        })
+
+    cy.loginUser(fakeUserData).then((accessToken) => {
     cy.request({
       method: 'POST',
-      url: '/api/users',
-      body: fakeUserData
+      url: '/api/movies',
+      body: this.movie,
+      headers: {
+        'Authorization': 'Bearer ' + accessToken
+      }
     })
       .then((response) => {
         expect(response.status).to.equal(201);
-        const userId = response.body.id;
+        cy.log(response.body);
+        const testMovieId = response.body.id;
 
+        cy.loginUser(fakeUserData).then((accessToken) => {
+          cy.request({
+            method: 'POST',
+            url: 'api/users/review',
+            body: {
+              movieId: testMovieId,
+              score: 5,
+              reviewText: 'Ótimo musical, amo muito.'
+            },
+            headers: {
+              'Authorization': 'Bearer ' + accessToken
+            }
+          })
+            .then((response) => {
+              expect(response.status).to.equal(201);
+              cy.log(response.body);
+            })
+        })
+      })
+    })
+  })
+})
+})
 
+it('Criação de Review - Filme Não Encontrado', function () {
+  cy.registerUser().then((fakeUserData) => {
+    cy.loginUser(fakeUserData);
+
+    cy.loginUser(fakeUserData).then((accessToken) => {
+      cy.request({
+        method: 'PATCH',
+        url: '/api/users/admin',
+        headers: {
+            'Authorization': 'Bearer ' + accessToken
+        },
+    })
+        .then((response) => {
+            expect(response.status).to.equal(204);
+        })
+
+    cy.loginUser(fakeUserData).then((accessToken) => {
+    cy.request({
+      method: 'POST',
+      url: 'api/users/review',
+      body: {
+        movieId: 46541321354532132,
+        score: 5,
+        reviewText: 'Ótimo musical, amo muito.'
+      },
+      headers: {
+        'Authorization': 'Bearer ' + accessToken
+      },
+      failOnStatusCode: false
+    })
+      .then((response) => {
+        expect(response.status).to.equal(404);
+        cy.log(response.body);
+      })
+    })
+  })
+})
+})
+
+it('Listar Reviews', function () {
+  cy.registerUser().then((fakeUserData) => {
+    cy.loginUser(fakeUserData);
+
+    cy.loginUser(fakeUserData).then((accessToken) => {
+    cy.request({
+      method: 'PATCH',
+      url: '/api/users/admin',
+      headers: {
+          'Authorization': 'Bearer ' + accessToken
+      },
+  })
+      .then((response) => {
+          expect(response.status).to.equal(204);
+      })
+
+    cy.loginUser(fakeUserData).then((accessToken) => {
+  cy.request({
+    method: 'POST',
+    url: '/api/movies',
+    body: this.movie,
+    headers: {
+      'Authorization': 'Bearer ' + accessToken
+    }
+  })
+    .then((response) => {
+      expect(response.status).to.equal(201);
+      cy.log(response.body);
+      const testMovieId = response.body.id;
+
+      cy.loginUser(fakeUserData).then((accessToken) => {
         cy.request({
           method: 'POST',
-          url: '/api/auth/login',
+          url: 'api/users/review',
           body: {
-            email: fakeUserData.email,
-            password: fakeUserData.password
+            movieId: testMovieId,
+            score: 5,
+            reviewText: 'Ótimo musical, amo muito.'
+          },
+          headers: {
+            'Authorization': 'Bearer ' + accessToken
           }
         })
           .then((response) => {
-            expect(response.status).to.equal(200);
-            expect(response.body).to.have.property('accessToken');
-            const accessToken = response.body.accessToken;
-            cy.log(accessToken);
+            expect(response.status).to.equal(201);
 
-            cy.request({
-              method: 'PATCH',
-              url: '/api/users/admin',
-              headers: {
-                'Authorization': 'Bearer ' + accessToken
-              }
-            })
-              .then((response) => {
-                expect(response.status).to.equal(204);
-
-                cy.request({
-                  method: 'GET',
-                  url: '/api/users/' + userId,
-                  headers: {
-                    'Authorization': 'Bearer ' + accessToken
-                  }
+            cy.loginUser(fakeUserData).then((accessToken) => {
+              cy.request({
+                method: 'GET',
+                url: '/api/users/review/all',
+                headers: {
+                  'Authorization': 'Bearer ' + accessToken
+                }
+              })
+                .then((response) => {
+                  expect(response.status).to.equal(200);
+                  expect(response.body).to.be.an('array');
+                  response.body.forEach(review => {
+                    expect(review).to.have.property('id');
+                    expect(review).to.have.property('movieId');
+                    expect(review).to.have.property('movieTitle');
+                    expect(review).to.have.property('score');
+                    expect(review).to.have.property('reviewText');
+                    expect(review).to.have.property('reviewType');
+                  })
+                  cy.log(response.body);
                 })
-              })
-              .then((response) => {
-                expect(response.status).to.equal(200);
-                expect(response.body).to.be.an('object');
-                expect(response.body).to.have.property('id');
-                expect(response.body).to.have.property('name');
-                expect(response.body).to.have.property('email');
-                expect(response.body).to.have.property('type');
-              })
-            cy.log(response.body);
+            })
           })
+        })
       })
+      })
+    })
   })
 })
+})
+
+
+
+
+
+
+
